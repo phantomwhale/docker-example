@@ -7,22 +7,22 @@ steps:
         run: bash
     agents:
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
-
-- key: "docker-build" # Build the Docker image
-  label: ":docker: Build"
-  command: docker pull alpine 
   
-- key: "docker-tag" # Tag the Docker image
-  label: ":docker: Build"
-  command: docker tag alpine packages.buildkite.com/phantom-press/whaleways/alpine
-  depends_on: "docker-build"
-
-- key: "docker-login" # Authenticate the Buildkite Agent to the Buildkite registry using an OIDC token
-  label: ":docker: Login"
-  command: buildkite-agent oidc request-token --audience "https://packages.buildkite.com/phantom-press/whaleways" --lifetime 300 | docker login packages.buildkite.com/phantom-press/whaleways --username buildkite --password-stdin
-  depends_on: "docker-tag"
-
-- key: "docker-push" # Now authenticated, push the Docker image to the registry
-  label: ":docker: Push"
-  command: docker push packages.buildkite.com/phantom-press/whaleways/alpine:latest
-  depends_on: "docker-login"
+  - key: "docker-build" # Build the Docker image
+    label: ":docker: Build"
+    command: docker pull alpine 
+    
+  - key: "docker-tag" # Tag the Docker image
+    label: ":docker: Build"
+    command: docker tag alpine packages.buildkite.com/phantom-press/whaleways/alpine
+    depends_on: "docker-build"
+  
+  - key: "docker-login" # Authenticate the Buildkite Agent to the Buildkite registry using an OIDC token
+    label: ":docker: Login"
+    command: buildkite-agent oidc request-token --audience "https://packages.buildkite.com/phantom-press/whaleways" --lifetime 300 | docker login packages.buildkite.com/phantom-press/whaleways --username buildkite --password-stdin
+    depends_on: "docker-tag"
+  
+  - key: "docker-push" # Now authenticated, push the Docker image to the registry
+    label: ":docker: Push"
+    command: docker push packages.buildkite.com/phantom-press/whaleways/alpine:latest
+    depends_on: "docker-login"
